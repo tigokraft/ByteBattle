@@ -1,0 +1,63 @@
+// ByteBattle Database Schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  username  String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  sessions  Session[]
+  players   Player[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  hostId      String
+  status      String   @default("LOBBY") // LOBBY, PLAYING, FINISHED
+  currentTurn Int      @default(0) // Index of current player
+  gameState   String   @default("WAITING") // WAITING, ROLLING, MOVING, ANSWERING, DUEL
+  players     Player[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Player {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId    String
+  room      Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  position  Int    @default(0)
+  inventory String @default("")
+  isHost    Boolean @default(false)
+
+  @@unique([userId, roomId])
+}
+
+model Question {
+  id           String @id @default(cuid())
+  category     String
+  question     String
+  options      String
+  correctIndex Int
+  difficulty   String
+
+  @@index([category, difficulty])
+}
