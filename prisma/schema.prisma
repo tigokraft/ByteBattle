@@ -52,12 +52,14 @@ model Player {
 }
 
 model Question {
-  id           String @id @default(cuid())
-  category     String
+  id           String  @id @default(cuid())
+  type         String  @default("QUESTION") // "QUESTION", "LUCKY", "UNLUCKY", "SPECIAL"
+  category     String?
   question     String
-  options      String
-  correctIndex Int
-  difficulty   String
+  options      String?
+  correctIndex Int?
+  difficulty   String?
+  effect       String?
 
   @@index([category, difficulty])
 }
